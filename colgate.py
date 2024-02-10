@@ -1,156 +1,29 @@
-'''from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
-import time
-import csv
-
-def Challo():
-    csv_file_path = filedialog.askopenfilename(title="Open CSV File", filetypes=[("CSV files", "*.csv")])
-
-    with open(csv_file_path, 'r')as csv_file: 
-        csv_reader = csv.reader(csv_file)
-        next(csv_reader)
-        
-        for line in csv_reader:
-            driver=webdriver.Chrome()
-#            url = 'https://www.colgate.com/en-in/campaign/win-with-total'
-            url = "https://eheadway.o18.click/c?o=20963894&m=1871&a=69233"
-            driver.get(url)
-            driver.maximize_window()
-            time.sleep(5)
-
-            #close popup
-            acceptall= driver.find_element(By.XPATH, '//*[@id="truste-consent-button"]').click()
-
-            #scroll
-            time.sleep(3)
-            driver.execute_script("window.scrollTo(0, 1800)")
-            time.sleep(3)
-            driver.execute_script("window.scrollTo(0, 0)")
-            time.sleep(3)
-
-            try:
-                driver.switch_to.frame("sfmcIframe")
-                first = driver.find_element(By.XPATH, '//*[@id="first-name"]')
-                last = driver.find_element(By.XPATH, '//*[@id="last-name"]')
-                mobile = driver.find_element(By.XPATH, '//*[@id="mobile"]')
-                date = driver.find_element(By.XPATH, '//*[@id="date_of_birth_string"]')
-                email = driver.find_element(By.XPATH, '//*[@id="email"]')            
-                state = driver.find_element(By.XPATH, '//*[@id="state"]/option['+line[5]+']') 
-                gender = driver.find_element(By.XPATH, '//*[@id="female"]')
-                gender = driver.find_element(By.XPATH, '//*[@id="'+line[6]+'"]')
-                opts = driver.find_element(By.XPATH, '//*[@id="ColgateOralCare'+line[7]+'"]')
-                checkbox = driver.find_element(By.XPATH, '//*[@id="confirm"]')
-
-                first.send_keys(line[0])
-                last.send_keys(line[1])
-                mobile.send_keys(line[2])
-                date.send_keys(line[3])
-                email.send_keys(line[4])
-                state.click()
-                gender.click()
-                opts.click()
-                checkbox.click()
-                
-                time.sleep(15)
-                submit = driver.find_element(By.XPATH, '//*[@id="frm_col_toothbrush_contest"]/div/div/div/div[3]/div[6]/div/button').click()
-                time.sleep(20)
-                if submit == True:
-                    print("response submited thankyou")        
-                else:
-                    print("not submited")
-                    
-        
-                #    searchbox.send_keys(Keys.ENTER)
-            except Exception as e:
-                print(e)
-                
-
-            # Wait for the next page to load (adjust the timeout as needed)
-            try:
-                # Wait until a certain element is present on the page (replace 'element_id' with the actual element ID)
-                WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, '/html/body/div[4]/div/div[2]/div/div[3]/div/div/div/div/div[6]/div[2]/h3')))
-                print("Page successfully loaded after login.")
-                
-                # Now you can perform additional ations on the page
-
-            except Exception as e:
-                print(f"An error occurred: {str(e)}")
-
-            finally:
-                driver.quit()
-                print("browser quits")
-
-
-#---------------  GUI  ------------------
-
 import tkinter as tk
-from tkinter import *
-from tkinter import filedialog
-
-r=tk.Tk()
-r.title('Colgate Automation')
-r.geometry('500x400+300+200')
-
-tk.Label(r, text='Upload only CSV file').grid(row=0, column=0)
-tk.Button(r, text = "Automate Colgate", command =Challo, height=2, width=40).grid(row=20, column=70) 
-
-tk.Button(r, text='Close', command=r.destroy).grid(row=450, column=80)
-r.mainloop()
-'''
-
-
-
-
-#------------- Production Ready -----------------------
+from tkinter import filedialog, Entry, messagebox
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
 import csv
-import tkinter as tk
-from tkinter import filedialog
+from selenium.common.exceptions import TimeoutException, NoSuchElementException, WebDriverException
 
-
-def import_csv_file():
-    csv_file_path = filedialog.askopenfilename(title="Open CSV File", filetypes=[("CSV files", "*.csv")])
-    return csv_file_path
-
-def execute_colgate_automation(line, url, delay_page, delay_scroll1, delay_scroll2, data_delay, submit_page):
-    driver = webdriver.Chrome()
-    driver.get(url)
-
-#    url = 'https://www.colgate.com/en-in/campaign/win-with-total'
-#    url = "https://eheadway.o18.click/c?o=20963894&m=1871&a=69233"
-    driver.maximize_window()
-    time.sleep(delay_page)
-
-    # Close popup
-    accept_all = driver.find_element(By.XPATH, '//*[@id="truste-consent-button"]').click()
-
-    # Scroll
-    driver.execute_script("window.scrollTo(0, 1800)")
-    time.sleep(delay_scroll1)
-    driver.execute_script("window.scrollTo(0, 0)")
-    time.sleep(delay_scroll2)
-
+counter = 0
+def automate_data_submission(line, driver):
     try:
         driver.switch_to.frame("sfmcIframe")
-        wait = WebDriverWait(driver, 2)
+        first = driver.find_element(By.XPATH, '//*[@id="first-name"]')
+        last = driver.find_element(By.XPATH, '//*[@id="last-name"]')
+        mobile = driver.find_element(By.XPATH, '//*[@id="mobile"]')
+        date = driver.find_element(By.XPATH, '//*[@id="date_of_birth_string"]')
+        email = driver.find_element(By.XPATH, '//*[@id="email"]')
+        state = driver.find_element(By.XPATH, '//*[@id="state"]/option['+line[5]+']')
+        gender = driver.find_element(By.XPATH, '//*[@id="'+line[6]+'"]')
+        opts = driver.find_element(By.XPATH, '//*[@id="ColgateOralCare'+line[7]+'"]')
+        checkbox = driver.find_element(By.XPATH, '//*[@id="confirm"]')
 
-        first = wait.until(EC.visibility_of_element_located((By.XPATH, '//*[@id="first-name"]')))
-        last = wait.until(EC.visibility_of_element_located((By.XPATH, '//*[@id="last-name"]')))
-        mobile = wait.until(EC.visibility_of_element_located((By.XPATH, '//*[@id="mobile"]')))
-        date = wait.until(EC.visibility_of_element_located((By.XPATH, '//*[@id="date_of_birth_string"]')))
-        email = wait.until(EC.visibility_of_element_located((By.XPATH, '//*[@id="email"]')))
-        state = wait.until(EC.visibility_of_element_located((By.XPATH, '//*[@id="state"]/option[' + line[5] + ']')))
-        gender = wait.until(EC.visibility_of_element_located((By.XPATH, '//*[@id="' + line[6] + '"]')))
-        opts = wait.until(EC.visibility_of_element_located((By.XPATH, '//*[@id="ColgateOralCare' + line[7] + '"]')))
-        checkbox = wait.until(EC.visibility_of_element_located((By.XPATH, '//*[@id="confirm"]')))
-
+        #send data
         first.send_keys(line[0])
         last.send_keys(line[1])
         mobile.send_keys(line[2])
@@ -161,162 +34,163 @@ def execute_colgate_automation(line, url, delay_page, delay_scroll1, delay_scrol
         opts.click()
         checkbox.click()
 
+        data_delay = float(entry_data_delay.get())
         time.sleep(data_delay)
         submit = driver.find_element(By.XPATH, '//*[@id="frm_col_toothbrush_contest"]/div/div/div/div[3]/div[6]/div/button').click()
-        time.sleep(submit_page)
+
+        # Check if the error element is present
+        error_element = WebDriverWait(driver, 20).until(
+            EC.presence_of_element_located((By.XPATH, '//*[@id="divform"]/div/div/p[3]'))
+        )
+        time.sleep(2)
         
-        if submit:
-            print("Response submitted, thank you!")
+        global counter
+        if error_element:
+            print('Data send failed :'+ counter++1)
+            return False
         else:
-            print("Not submitted")
+            counter += 1
+            print("Data send:", counter)
+            newfile = data_file.get()
+            with open(f'{newfile}.csv', 'a', newline='') as success_file:
+                success_writer = csv.writer(success_file)
+                datasuccess = int(1)
+                user_data = [line[0], line[1], line[2], line[3], line[4], datasuccess]
+                success_writer.writerow(user_data)
+            return True
+
+    except NoSuchElementException as e:
+        print(f"Element not found: {e}")
+        return False
+    except TimeoutException as e:
+        print(f"Timeout: {e}")
+        return False
     except Exception as e:
-        print(e)
+        print(f"An error occurred: {e}")
+        return False
 
-    finally:
-        driver.quit()
-        print("Browser quits")
+def automate_colgate():
+    global counter
+    try:
+        url = entry_url.get()
+        file_path = filedialog.askopenfilename(defaultextension=".csv", filetypes=[("CSV Files", "*.csv"), ("All Files", "*.*")])
 
-def Challo():
-    csv_file_path = import_csv_file()
-    url = entry_url.get()
-    delay_page = float(entry_delay_page.get())
-    delay_scroll1 = float(entry_delay_scroll1.get())
-    delay_scroll2 = float(entry_delay_scroll2.get())
-    data_delay = float(entry_data_delay.get())
-    submit_page = float(entry_submit_page.get())
+        options = webdriver.ChromeOptions()
+        options.add_argument("start-maximized")
+        options.add_argument("--incognito")
+        driver = webdriver.Chrome(options=options)
 
-    with open(csv_file_path, 'r') as csv_file: 
-        csv_reader = csv.reader(csv_file)
-        next(csv_reader)
-        
-        for line in csv_reader:
-            execute_colgate_automation(line, url, delay_page, delay_scroll1, delay_scroll2, data_delay, submit_page)
+#        driver.get("http://192.168.8.1/html/home.html")
+        driver.get(dongal_url.get())
+        driver.maximize_window()
 
-# -------------- GUI -------------------
-r = tk.Tk()
-r.title('Colgate Automation')
-r.geometry('500x400+300+200')
-
-tk.Label(r, text='Enter Colgate Tracking Link:').grid(row=0, column=0)
-entry_url = tk.Entry(r, width=40)
-entry_url.grid(row=0, column=1)
-
-tk.Label(r, text='Delay After Page Load (seconds):').grid(row=1, column=0)
-entry_delay_page = tk.Entry(r, width=10)
-entry_delay_page.grid(row=1, column=1)
-
-tk.Label(r, text='Delay after 1st Scroll (seconds):').grid(row=2, column=0)
-entry_delay_scroll1 = tk.Entry(r, width=10)
-entry_delay_scroll1.grid(row=2, column=1)
-
-tk.Label(r, text='Delay after 2nd Scroll (seconds):').grid(row=3, column=0)
-entry_delay_scroll2 = tk.Entry(r, width=10)
-entry_delay_scroll2.grid(row=3, column=1)
-
-tk.Label(r, text='Delay for Data submit time (seconds):').grid(row=4, column=0)
-entry_data_delay = tk.Entry(r, width=10)
-entry_data_delay.grid(row=4, column=1)
-
-tk.Label(r, text='Wait Time Post Submit Botton (seconds):').grid(row=5, column=0)
-entry_submit_page = tk.Entry(r, width=10)
-entry_submit_page.grid(row=5, column=1)
-
-tk.Label(r, text='Upload only CSV file').grid(row=6, column=0)
-tk.Button(r, text="Automate Colgate", command=Challo, height=2, width=40).grid(row=7, column=0)
-
-tk.Button(r, text='Close Script', command=r.destroy).grid(row=8, column=1, columnspan=2)
-r.mainloop()
-
-
-
-
-
-
-'''
-import unittest
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
-import time
-import csv
-import tkinter as tk
-from tkinter import filedialog
-import HtmlTestRunner
-
-class ColgateAutomationTest(unittest.TestCase):
-    def setUp(self):
-        self.driver = webdriver.Chrome()
-
-    def tearDown(self):
-        self.driver.quit()
-
-    def test_colgate_automation(self):
-        csv_file_path = self.import_csv_file()
-        
-        with open(csv_file_path, 'r') as csv_file:
+        with open(file_path, 'r') as csv_file:
             csv_reader = csv.reader(csv_file)
             next(csv_reader)
-            
+
             for line in csv_reader:
-                self.execute_colgate_automation(line)
+                changeIp = driver.find_element(By.XPATH, dongal_xpath.get())
+#                changeIp = driver.find_element(By.XPATH, '//*[@id="mobile_connect_btn"]')
+                changeIp.click()
+                time.sleep(1)
 
-    def import_csv_file(self):
-        csv_file_path = filedialog.askopenfilename(title="Open CSV File", filetypes=[("CSV files", "*.csv")])
-        return csv_file_path
+                driver.execute_script("window.open('', '_blank');")
+                driver.switch_to.window(driver.window_handles[-1])
+                driver.get(entry_url.get())
+#                driver.get('https://www.colgate.com/en-in/campaign/win-with-total')
+                delay_page = float(entry_delay_page.get())
+                time.sleep(delay_page)
 
-    def execute_colgate_automation(self, line):
-        url = "https://eheadway.o18.click/c?o=20963894&m=1871&a=69233"
-        self.driver.get(url)
-        self.driver.maximize_window()
-        time.sleep(5)
+                # Scroll
+                driver.execute_script("window.scrollTo(0, 1800)")
+                delay_scroll1 = float(entry_delay_scroll1.get())
+                time.sleep(delay_scroll1)
+                
+                try:
+                    accept_all = driver.find_element(By.XPATH, '//*[@id="truste-consent-button"]')
+                    accept_all.click()
+                except NoSuchElementException:
+                    pass
+                
+                driver.execute_script("window.scrollTo(0, 0)")
+                delay_scroll2 = float(entry_delay_scroll2.get())
+                time.sleep(delay_scroll2)
 
-        # Close popup
-        accept_all = self.driver.find_element(By.XPATH, '//*[@id="truste-consent-button"]').click()
+                success = automate_data_submission(line, driver)
 
-        # Scroll
-        time.sleep(3)
-        self.driver.execute_script("window.scrollTo(0, 1800)")
-        time.sleep(3)
-        self.driver.execute_script("window.scrollTo(0, 0)")
-        time.sleep(3)
+                driver.delete_all_cookies()
+                driver.close()
+                driver.switch_to.window(driver.window_handles[0])
+                changeIp.click()
 
-        try:
-            self.driver.switch_to.frame("sfmcIframe")
-            first = self.driver.find_element(By.XPATH, '//*[@id="first-name"]')
-            last = self.driver.find_element(By.XPATH, '//*[@id="last-name"]')
-            mobile = self.driver.find_element(By.XPATH, '//*[@id="mobile"]')
-            date = self.driver.find_element(By.XPATH, '//*[@id="date_of_birth_string"]')
-            email = self.driver.find_element(By.XPATH, '//*[@id="email"]')            
-            state = self.driver.find_element(By.XPATH, '//*[@id="state"]/option[' + line[5] + ']') 
-            gender = self.driver.find_element(By.XPATH, '//*[@id="female"]')
-            gender = self.driver.find_element(By.XPATH, '//*[@id="' + line[6] + '"]')
-            opts = self.driver.find_element(By.XPATH, '//*[@id="ColgateOralCare' + line[7] + '"]')
-            checkbox = self.driver.find_element(By.XPATH, '//*[@id="confirm"]')
+                dongal = dongal_delay.get()
+                time.sleep(int(dongal))
 
-            first.send_keys(line[0])
-            last.send_keys(line[1])
-            mobile.send_keys(line[2])
-            date.send_keys(line[3])
-            email.send_keys(line[4])
-            state.click()
-            gender.click()
-            opts.click()
-            checkbox.click()
+                if success:
+                    print("data send:", counter)
+                else:
+                    print('data send fail:')
+            print("Automation completed")
 
-            time.sleep(15)
-            submit = self.driver.find_element(By.XPATH, '//*[@id="frm_col_toothbrush_contest"]/div/div/div/div[3]/div[6]/div/button').click()
-            time.sleep(20)
-            
-            if submit:
-                print("Response submitted, thank you!")
-            else:
-                print("Not submitted")
+    except NoSuchElementException as e:
+        print(f"Element not found: {e}")
 
-        except Exception as e:
-            print(e)
+    except Exception as e:
+        print("Error", f"An error occurred: {str(e)}")
+    finally:
+        driver.quit()
 
-if __name__ == "__main__":
-    unittest.main(testRunner=HtmlTestRunner.HTMLTestRunner(output='test-reports'))
-'''
+#-------------- GUI -------------------
+root = tk.Tk()
+root.title('Colgate Automation')
+root.geometry('580x400+300+200')
+
+tk.Label(root, text='Colgate form filling automation', font=('Helvetica', 14, 'bold')).grid(row=0, column=1)
+tk.Label(root, text='Dongal to change I.P', font=('Helvetica', 10, 'bold')).grid(row=1, column=1)
+
+tk.Label(root, text='Enter Dongal Link :', font=('Helvetica', 10)).grid(row=2, column=0)
+dongal_url = Entry(root, width=47)
+dongal_url.grid(row=2, column=1)
+
+tk.Label(root, text='Enter Xpath of button :', font=('Helvetica', 10)).grid(row=3, column=0)
+dongal_xpath = tk.Entry(root, width=50)
+dongal_xpath.grid(row=3, column=1)
+
+tk.Label(root, text='Enter Dongal Delay time :', font=('Helvetica', 10)).grid(row=4, column=0)
+dongal_delay = tk.Entry(root, width=10)
+dongal_delay.grid(row=4, column=1)
+
+separator = tk.Frame(height=2, bd=1, relief="groove")
+separator.grid(row=5, columnspan=2, sticky="ew", pady=5)
+
+tk.Label(root, text='Colgate Automation Section: ', font=('Helvetica', 10, 'bold')).grid(row=6, column=1)
+tk.Label(root, text='Enter Colgate Tracking Link: ', font=('Helvetica', 10)).grid(row=7, column=0)
+entry_url = Entry(root, width=50)
+entry_url.grid(row=7, column=1)
+
+tk.Label(root, text='Delay After Page Load (seconds) :', font=('Helvetica', 10)).grid(row=8, column=0)
+entry_delay_page = tk.Entry(root, width=10)
+entry_delay_page.grid(row=8, column=1)
+
+tk.Label(root, text='Delay after 1st Scroll (seconds) :', font=('Helvetica', 10)).grid(row=9, column=0)
+entry_delay_scroll1 = tk.Entry(root, width=10)
+entry_delay_scroll1.grid(row=9, column=1)
+
+tk.Label(root, text='Delay after 2nd Scroll (seconds) :', font=('Helvetica', 10)).grid(row=10, column=0)
+entry_delay_scroll2 = tk.Entry(root, width=10)
+entry_delay_scroll2.grid(row=10, column=1)
+
+tk.Label(root, text='Delay for Data submit time (seconds) :', font=('Helvetica', 10)).grid(row=11, column=0)
+entry_data_delay = tk.Entry(root, width=10)
+entry_data_delay.grid(row=11, column=1)
+
+separator = tk.Frame(height=2, bd=1, relief="groove")
+separator.grid(row=12, columnspan=2, sticky="ew", pady=5)
+
+tk.Label(root, text='Enter data send file name:', font=('Helvetica', 10)).grid(row=13, column=0)
+data_file = tk.Entry(root, width=35)
+data_file.grid(row=13, column=1)
+
+tk.Button(root, text="Automate Colgate", command=automate_colgate, height=2, width=30, font=('Helvetica', 12, 'bold')).grid(row=14, column=1)
+tk.Button(root, text='Close', command=root.destroy).grid(row=15, column=1)
+root.mainloop()
